@@ -2,13 +2,12 @@ Hey guys! I've been using Rebirth for a long time and I love that old software, 
 
 It's really important to understand that this project is open source; anyone can download it and improve or fix the same version by creating their own variations. This project is purely for enjoyment.That's when I mentioned that the options that really hook you into using it are: Saving/Opening projects from others like yours in JSON format; the same applies to Themes, recreating a bit The classic .MOD files that can be shared in this same repo, as well as being able to automate the knobs of both TB303s and change the pitch bend And best of all, you can load your samples into both TRs to completely change the rhythm! It includes options to randomize your acid sequences and more for you to explore. 
 
-As for the effects, they remain the same as the original route, but with slight, subtle improvements that are very enjoyable. 
+As for the effects, they remain the same as the original route, but with slight, subtle improvements that are very enjoyable, the graphics are based on a highly optimized model tested on quite old PCs from the time when we were children, as it retains its modern and elegant touch to elevate it On any computer, I must mention that it consumes a very negligible amount; you almost don't feel the interface slow or anything. 
 
-The graphics are based on a highly optimized model tested on quite old PCs from the time when we were children, as it retains its modern and elegant touch to elevate it On any computer, I must mention that it consumes a very negligible amount; you almost don't feel the interface slow or anything. 
-Enjoy! 
+ <img width="1268" height="764" alt="RM38" src="https://github.com/user-attachments/assets/2217bbb0-dc21-4aa5-9aaa-9e51721961f8" />
 
-Small demonstration!
+Small demonstration I’m showing both TBs with on/off automations, TR, and one of them with the sample loaded.
+(Audio)!
 https://github.com/user-attachments/assets/59fd591a-7af0-4191-b23c-228c1032c5c8
-
 
 Remember to give this project a star and share it with others! Hugs, Questyn 
