@@ -7,7 +7,4 @@ As for the effects, they remain the same as the original route, but with slight,
 The graphics are based on a highly optimized model tested on quite old PCs from the time when we were children, as it retains its modern and elegant touch to elevate it On any computer, I must mention that it consumes a very negligible amount; you almost don't feel the interface slow or anything. 
 Enjoy! 
 
-Link: https://aiseam.github.io/RM38/
-
-
 Remember to give this project a star and share it with others! Hugs, Questyn 
