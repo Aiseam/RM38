@@ -2,12 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>ReBirth RB-338</title>
 <style>
 :root{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;color:var(--ui-text,#242424);background:var(--ui-background,#171717);--ui-background:#171717;--ui-case:#bfc0bd;--ui-panel:#c6c7c4;--ui-panel-light:#e4e5e2;--ui-panel-dark:#454644;--ui-text:#242424;--ui-muted:#555753;--ui-accent:#d82323;--ui-button:#b8b9b6;--ui-button-text:#292929;--ui-border:#777;--ui-display:#151515;--ui-display-text:#e53332;--ui-fx:#6e8f23;--ui-led:#e9a72a}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:var(--ui-background);display:flex;justify-content:center;align-items:center;padding:8px;overflow:auto}
+html{min-height:100%;background:var(--ui-background);overscroll-behavior:none;touch-action:pan-x pan-y}
+.app{zoom:1}
+body{margin:0;min-height:100vh;background:var(--ui-background);display:flex;justify-content:center;align-items:center;padding:8px;overflow:auto;overscroll-behavior:none;-webkit-text-size-adjust:100%;touch-action:pan-x pan-y}
 button,input{font:inherit}button{cursor:pointer}
 .app{width:min(1600px,100%);min-width:900px;background:var(--ui-case);border:3px solid var(--ui-border);box-shadow:0 8px 28px #000a;display:grid;grid-template-rows:88px auto;overflow:hidden;border-radius:4px}
 .topbar{display:grid;grid-template-columns:95px 130px minmax(245px,1fr) 130px 130px 130px 105px;gap:7px;align-items:center;padding:8px 10px;background:linear-gradient(#e4e5e2,#9d9e9c);border-bottom:3px solid #666}
@@ -46,7 +48,11 @@ button,input{font:inherit}button{cursor:pointer}
 .knob:before{content:"";position:absolute;width:3px;height:13px;background:#3c3c3a;top:2px;left:50%;margin-left:-1.5px;transform-origin:50% 14px;transform:rotate(var(--angle,0deg));border-radius:2px;pointer-events:none}
 .knob:after{content:"";position:absolute;inset:5px;border-radius:50%;border:1px solid #ffffff30;pointer-events:none}
 .knob.auto-selected{box-shadow:0 0 8px #ff3030,inset 0 2px 3px rgba(255,255,255,.5),inset 0 -2px 4px rgba(0,0,0,.4),0 2px 3px rgba(0,0,0,.5);border-color:#ff6060}
-.knob.automated:before{transition:transform 0.09s linear}
+.knob:before{transition:transform 0.09s linear;transform:rotate(var(--angle,0deg)) translateZ(0)}
+.knob.automated:before{transition:transform 0.075s linear}
+.knob.automated{will-change:transform}
+@keyframes automationPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.22)}}
+.knob.automated:after{animation:automationPulse .22s ease-in-out}
 .reset-step{text-align:center;font-size:8px;font-weight:800}
 .reset-step .digital{height:30px;font-size:18px;line-height:30px;margin-top:3px}
 .keyboard-area{padding:8px 9px 12px;background:linear-gradient(var(--ui-panel-light),var(--ui-button));display:grid;grid-template-columns:56px minmax(0,1fr) 72px;gap:6px}
@@ -106,15 +112,16 @@ button,input{font:inherit}button{cursor:pointer}
 .auto-head button[data-auto-clear]{color:#ff6060;border-color:#4a2020}
 .auto-head button[data-auto-clear]:hover{background:linear-gradient(#4a2020,#2a1010);border-color:#8a3030;color:#ff8080}
 .auto-head button[data-auto-close]{padding:3px 7px;font-size:10px;line-height:1}
+/* TV-303 automation cable editor: raised, tactile panel with 16 step nodes. */
 .auto-graph{
-  width:100%;height:68px;cursor:crosshair;
-  background:radial-gradient(ellipse at center,#0d0d18 0%,#03030a 100%);
-  border:1px solid #232333;
-  border-radius:6px;
-  touch-action:none;display:block;
-  box-shadow:inset 0 0 24px rgba(0,0,0,.9),0 0 0 1px rgba(80,80,120,.1);
+  display:block!important;width:100%;height:88px;cursor:crosshair;overflow:visible;
+  background:linear-gradient(180deg,#282a30 0%,#15171d 16%,#08090d 100%);
+  border:1px solid #555963;border-radius:5px;touch-action:none;display:block;
+  box-shadow:inset 0 2px 4px #ffffff16,inset 0 -5px 12px #000d,0 1px 0 #85889055;
 }
-
+.auto-graph-wrap{padding:5px 6px 6px;border:1px solid #111318;border-radius:6px;background:linear-gradient(180deg,#686b70 0%,#34363b 5%,#24262b 100%);box-shadow:inset 0 1px 0 #ffffff55,inset 0 -2px 3px #000b,0 2px 4px #0008}
+.auto-graph-labels{display:flex;justify-content:space-between;padding:3px 2px 0;color:#9ca1aa;font:700 7px Arial,sans-serif;letter-spacing:.7px;text-shadow:0 1px #000}
+.auto-control-slot{display:none!important}
 /* ===== DRUM MIXER PEGADO ===== */
 .drum-mixer{display:flex;flex-direction:column;gap:0;padding:0;background:var(--ui-panel)}
 .drum-device{border:2px solid #000;border-radius:0;overflow:hidden;box-shadow:none}
@@ -124,26 +131,48 @@ button,input{font:inherit}button{cursor:pointer}
 .dev-head strong{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
 .dev-head .head-controls{display:flex;align-items:center;gap:6px}
 .seq-toggle{font-size:8px;padding:2px 6px;border-radius:2px;border:1px solid;font-weight:900;height:22px;min-width:44px}
+.drum-auto{width:24px;height:22px;padding:0;display:flex;align-items:center;justify-content:center;border:1px solid #555;border-radius:3px;background:linear-gradient(#333,#111);color:#ffb84d;flex-shrink:0}
+.drum-auto svg{width:17px;height:13px;display:block}
+.drum-auto[aria-pressed="true"]{background:linear-gradient(#ffb84d,#a65d00);color:#111;box-shadow:0 0 5px #ff9c00}
+#drum909 .drum-auto{color:#ffcc55;border-color:#333}
+#drum909 .drum-auto[aria-pressed="true"]{background:linear-gradient(#ffcc55,#a87800);color:#111}
+/* Permanent analogue-style TR interface: compact vertical knob stacks. */
+.drum-device .v-knobs{grid-template-columns:1fr;grid-auto-flow:row;gap:2px;min-height:0;justify-items:center}
+.drum-device .mini-control{width:100%;min-height:14px}
+.drum-device .mini-knob{width:12px;height:12px}
+.drum-device .voice-cell{gap:2px;padding:2px 1px}
+.drum-device .voice-header{flex-direction:column;align-items:stretch}
+.drum-device .v-switch{width:100%;height:13px}
+.drum-device .voice-btn{height:16px;font-size:8px}
+.drum-device .v-actions button{height:13px}
 .dev-knob-wrap{display:flex;flex-direction:column;align-items:center;gap:1px}
 .dev-knob-label{font-size:6px;color:inherit;font-weight:900;letter-spacing:.5px}
 .dev-knob{width:24px;height:24px;border-radius:50%;position:relative;border:1px solid #333;cursor:ns-resize;touch-action:none;flex-shrink:0}
 .dev-knob:before{content:"";position:absolute;width:2px;height:8px;top:2px;left:50%;margin-left:-1px;transform-origin:50% 10px;transform:rotate(var(--angle,0deg));border-radius:1px;pointer-events:none}
-.dev-status{font-size:8px;padding:1px 5px;border-radius:2px;font-weight:900;white-space:nowrap}
+.dev-status{font-size:7px;padding:1px 4px;border-radius:2px;font-weight:900;white-space:nowrap;max-width:54px;overflow:hidden;text-overflow:ellipsis}
 .dev-body{padding:8px 10px;display:flex;flex-direction:column;gap:6px}
 .voice-row{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:3px}
 .voice-cell{display:flex;flex-direction:column;gap:3px;padding:3px 2px;border-radius:3px;border:1px solid;min-width:0}
 .voice-header{display:flex;gap:2px;align-items:stretch}
 .voice-btn{flex:1;height:20px;font-size:9px;font-weight:900;padding:0;border-radius:2px;border:1px solid;overflow:hidden;text-overflow:ellipsis}
 .v-switch{width:14px;height:20px;font-size:8px;font-weight:900;padding:0;border-radius:2px;border:1px solid;line-height:1}
-.v-knobs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;justify-items:center}
-.mini-knob{width:20px;height:20px;border-radius:50%;position:relative;cursor:ns-resize;touch-action:none;border:1px solid #000;flex-shrink:0}
+.v-knobs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px;justify-items:center;align-items:start;width:100%}
+.mini-control{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:0;min-width:0;width:100%}
+.mini-control-label{display:none}
+.mini-knob{width:13px;height:13px;border-radius:50%;position:relative;cursor:ns-resize;touch-action:none;border:1px solid #000;flex-shrink:0;display:block}
+.v-knobs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;justify-items:center;align-items:center;width:100%;min-height:14px}
+.v-actions{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:1px}
+.v-actions button{height:13px;font-size:7px;font-weight:900;padding:0;border-radius:2px;border:1px solid;cursor:pointer;line-height:11px}
 .v-actions{display:grid;grid-template-columns:1fr 1fr;gap:1px}
 .v-actions button,.v-actions label{height:16px;font-size:7px;font-weight:900;padding:0;border-radius:2px;display:flex;align-items:center;justify-content:center;border:1px solid;cursor:pointer;overflow:hidden}
 .v-actions input[type=file]{display:none}
+.v-actions label span{display:flex;width:100%;height:100%;align-items:center;justify-content:center}
+.v-actions label.sample-loaded{box-shadow:inset 0 0 0 1px #78c85a}
+.v-actions label.sample-error{box-shadow:inset 0 0 0 1px #e33}
 #drum808 .mini-knob{background:radial-gradient(circle at 35% 28%,#5a5a5a 0%,#2a2a2a 40%,#111 70%,#000 100%);box-shadow:inset 0 2px 2px rgba(255,255,255,.15),inset 0 -2px 3px rgba(0,0,0,.9),0 1px 2px rgba(0,0,0,.6)}
-#drum808 .mini-knob::after{content:"";position:absolute;top:2px;left:50%;margin-left:-1px;width:2px;height:7px;background:#ff9c00;border-radius:1px;transform-origin:50% 8px;transform:rotate(var(--angle,0deg))}
+#drum808 .mini-knob::after{content:"";position:absolute;top:1px;left:50%;margin-left:-1px;width:2px;height:5px;background:#ff9c00;border-radius:1px;transform-origin:50% 6px;transform:rotate(var(--angle,0deg))}
 #drum909 .mini-knob{background:radial-gradient(circle at 35% 28%,#fff 0%,#e8e4d8 40%,#a8a498 70%,#555 100%);box-shadow:inset 0 2px 3px rgba(255,255,255,.9),inset 0 -2px 3px rgba(0,0,0,.3),0 1px 3px rgba(0,0,0,.5)}
-#drum909 .mini-knob::after{content:"";position:absolute;top:2px;left:50%;margin-left:-1px;width:2px;height:7px;background:#e06000;border-radius:1px;transform-origin:50% 8px;transform:rotate(var(--angle,0deg))}
+#drum909 .mini-knob::after{content:"";position:absolute;top:1px;left:50%;margin-left:-1px;width:2px;height:5px;background:#e06000;border-radius:1px;transform-origin:50% 6px;transform:rotate(var(--angle,0deg))}
 #drum808{background:linear-gradient(180deg,#3a3a3a,#1a1a1a);border-color:#0a0a0a}
 #drum808 .dev-head{background:linear-gradient(#4a4a4a,#111);color:#ffb84d}
 #drum808 .seq-toggle{background:linear-gradient(#2a2a2a,#0f0f0f);color:#ffb84d;border-color:#555}
@@ -183,7 +212,7 @@ button,input{font:inherit}button{cursor:pointer}
 .step-row{display:grid;grid-template-columns:repeat(16,minmax(0,1fr));gap:2px;margin-top:14px}
 .step-btn{height:26px;font-size:9px;font-weight:900;padding:0;border-radius:2px;border:1px solid;transition:transform .05s}
 .step-btn:active{transform:scale(.95)}
-.themes-open{width:100%;height:38px;border:2px solid var(--ui-border);background:linear-gradient(var(--ui-panel-light),var(--ui-button));color:var(--ui-button-text);font-weight:900;border-radius:2px}
+.zoom-controls{display:flex;align-items:center;justify-content:center;gap:3px;width:100%;height:24px}.zoom-controls button{height:22px;min-width:22px;border:1px solid #777;background:linear-gradient(#f7f7f7,#aaa);font-weight:900;border-radius:2px;padding:0 4px}.zoom-controls span{min-width:34px;font:700 9px monospace;text-align:center}.themes-open{width:100%;height:32px;border:2px solid var(--ui-border);background:linear-gradient(var(--ui-panel-light),var(--ui-button));color:var(--ui-button-text);font-weight:900;border-radius:2px}
 .right{background:var(--ui-panel);border-left:3px solid var(--ui-border);display:grid;grid-template-rows:repeat(4,auto) 1fr;min-width:0}
 .right-head{height:29px;background:linear-gradient(var(--ui-fx),#6e8f23);color:#eff6d4;font-size:12px;font-weight:900;padding:6px 9px;border-bottom:2px solid #777;display:flex;justify-content:space-between}
 .fx{border-bottom:3px solid #777}
@@ -219,6 +248,19 @@ button:focus-visible,input:focus-visible{outline:2px solid #1769aa;outline-offse
 .theme-grid input{width:34px;height:26px;border:0;padding:0;background:transparent}
 .theme-actions{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px}
 @media(max-width:1050px){body{padding:0}.app{min-width:760px}.main{grid-template-columns:145px minmax(430px,1fr) 260px}.topbar{grid-template-columns:75px 100px 220px 90px 90px 90px minmax(140px,1fr);gap:4px}.transport button{width:36px}.synth-head{grid-template-columns:90px repeat(8,minmax(28px,1fr)) 50px}.knob{width:28px;height:28px}.knob:before{height:11px;transform-origin:50% 12px}}
+/* Android phone support: retain the original control layout and rotate the complete instrument into landscape. */
+@media (orientation:portrait) and (max-width:900px){
+  html,body{width:100%;height:100%;min-height:100%;margin:0;padding:0;overflow:hidden;background:var(--ui-background)}
+  body{display:block;position:relative}
+  .app{position:fixed;display:grid;top:0;left:100vw;width:100dvh;height:100vw;min-width:760px;max-width:none;margin:0;transform:rotate(90deg);transform-origin:top left;overflow:auto;border-radius:0;z-index:10;background:var(--ui-case)}
+}
+/* Subtle depth only; no controls are moved, duplicated, or restructured. */
+.app{box-shadow:0 8px 28px #0008;transform-origin:top left}
+@media(max-width:900px){.app,.knob,.auto-control-knob{backface-visibility:hidden}}
+.synth{box-shadow:inset 0 1px 0 #ffffff66,0 2px 4px #0002}
+.synth .knob{box-shadow:inset 0 1px 2px #ffffff88,inset 0 -2px 3px #0005,0 1px 2px #0004}
+#drum808,#drum909{box-shadow:inset 0 1px 0 #ffffff33,0 2px 5px #0003}
+
 </style>
 </head>
 <body>
@@ -230,7 +272,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #1769aa;outline-offse
   <div class="top-control">BAR<div class="stepper"><button id="barDown">−</button><div class="digital small-display" id="bar">001</div><button id="barUp">+</button></div></div>
   <div class="top-control">PATTERN<div class="stepper"><button id="patternDown">−</button><div class="digital small-display" id="patternNumber">A1</div><button id="patternUp">+</button></div></div>
   <div class="top-control">LENGTH<div class="stepper"><button id="lengthDown">−</button><div class="digital small-display" id="length">16</div><button id="lengthUp">+</button></div></div>
-  <div class="top-control"><button id="themesOpen" class="themes-open">THEMES</button></div>
+  <div class="top-control"><button id="themesOpen" class="themes-open">THEMES</button><div class="zoom-controls"><button id="zoomOut" type="button" aria-label="Zoom out">−</button><span id="zoomLabel">100%</span><button id="zoomIn" type="button" aria-label="Zoom in">+</button><button id="zoomReset" type="button" aria-label="Reset zoom">↺</button></div></div>
 </header>
 <div class="main">
   <aside class="pattern-rail" id="patternRail"></aside>
@@ -294,7 +336,7 @@ const $$ = (s, root=document) => [...root.querySelectorAll(s)];
 
 /* ============ AUDIO ============ */
 const AC = window.AudioContext || window.webkitAudioContext;
-const audio = new AC();
+const audio = new AC({ latencyHint: "playback" });
 function makeDist(amount){const n=2048,c=new Float32Array(n),k=amount;for(let i=0;i<n;i++){const x=i*2/n-1;c[i]=(1+k)*x/(1+k*Math.abs(x));}return c;}
 
 const master = audio.createGain(); master.gain.value = 0.85;
@@ -328,7 +370,7 @@ volDrum["808"].gain.value = 0.8; volDrum["909"].gain.value = 0.8;
   drumDry[dev].gain.value = 1; drumDrive[dev].gain.value = 1; drumWet[dev].gain.value = 0;
   drumShaper[dev].curve = makeDist(6);
   drumDelay[dev].delayTime.value = 0.25;
-  drumDelayFB[dev].gain.value = 0.35;
+  drumDelayFB[dev].gain.value = 0.22;
   drumDelayWet[dev].gain.value = 0;
 });
 const delayNode = audio.createDelay(2);
@@ -368,12 +410,22 @@ convolver.buffer = makeIR(1.2, 2);
 function unlock() { if (audio.state !== "running") { try { audio.resume(); } catch(e){} } }
 ["pointerdown","click","keydown","touchstart"].forEach(ev => document.addEventListener(ev, unlock, {capture:true, passive:true}));
 async function ensureRunning() { if (audio.state === "running") return true; try { await audio.resume(); } catch(e){} return audio.state === "running"; }
+// Android may suspend Web Audio while the tab is backgrounded; resume on return when playback is active.
+document.addEventListener("visibilitychange", async () => {
+  if (document.visibilityState === "visible" && state.playing && audio.state !== "running") {
+    try { await audio.resume(); } catch(e) {}
+    if (audio.state === "running") nextNoteTime = Math.max(nextNoteTime, audio.currentTime + 0.10);
+  }
+});
+audio.addEventListener("statechange", () => {
+  if (audio.state === "running" && state.playing && schedulerTimer && nextNoteTime < audio.currentTime) nextNoteTime = audio.currentTime + 0.10;
+});
 
 /* ============ STATE ============ */
 const voices808 = [
   {id:"BD",name:"Bass Drum"},{id:"SD",name:"Snare"},
   {id:"LT",name:"Low Tom",variant:"LC"},{id:"MT",name:"Mid Tom",variant:"MC"},{id:"HT",name:"High Tom",variant:"HC"},
-  {id:"RS",name:"Rim",variant:"CL"},{id:"CP",name:"Clap",variant:"MA"},
+  {id:"RS",name:"Rimshot",variant:"CG"},{id:"CP",name:"Clap",variant:"MA"},
   {id:"CB",name:"Cowbell"},{id:"CY",name:"Cymbal"},{id:"OH",name:"Open Hat"},{id:"CH",name:"Closed Hat"}
 ];
 const voices909 = [
@@ -386,7 +438,7 @@ const state = {
   bpm:120, length:16, bank:0, pattern:1, bar:1, step:0,
   playing:false, recording:false,
   patterns:{}, knobs:{},
-  selectedVoice:{808:"BD",909:"BD"}, muted:{},
+  selectedVoice:{808:"BD",909:"BD"}, muted:{}, soloed:{},
   shuffle:0,
   pitchMode:{"303a":false,"303b":false}, waveform:{"303a":"sawtooth","303b":"sawtooth"},
   selectedStep:{"303a":0,"303b":0},
@@ -407,12 +459,12 @@ function activePattern(dev){return state.patterns[dev][state.bank][state.pattern
 const manualDrags = new Set();
 
 /* ============ SCHEDULER ============ */
-const LOOKAHEAD_MS = 25, SCHEDULE_AHEAD_S = 0.12;
+const LOOKAHEAD_MS = 25, SCHEDULE_AHEAD_S = 0.48;
 let schedulerTimer = null, nextNoteTime = 0, currentStepIndex = 0, lastUIUpdate = -1;
 function getStepDuration() { return 60 / state.bpm / 4; }
 function startScheduler() {
   if (schedulerTimer) return;
-  nextNoteTime = audio.currentTime + 0.1;
+  nextNoteTime = audio.currentTime + 0.24;
   currentStepIndex = 0; state.step = 0;
   schedulerTimer = setInterval(schedulerTick, LOOKAHEAD_MS);
   requestAnimationFrame(uiLoop);
@@ -422,7 +474,9 @@ function stopScheduler() {
   ["303a","303b"].forEach(id => restoreKnobVisuals(id));
 }
 function schedulerTick() {
-  if (!state.playing) return;
+  if (!state.playing || audio.state !== "running") return;
+  // Recover cleanly if Android suspends the tab or delays its JavaScript timer.
+  if (nextNoteTime < audio.currentTime - 0.04) nextNoteTime = audio.currentTime + 0.10;
   while (nextNoteTime < audio.currentTime + SCHEDULE_AHEAD_S) {
     try { scheduleStep(currentStepIndex % state.length, nextNoteTime); } catch(err){console.error(err);}
     nextNoteTime += getStepDuration();
@@ -438,30 +492,32 @@ function uiLoop() {
     $("#bar").textContent = String(state.bar).padStart(3,"0");
     ["303a","303b"].forEach(id => { const el = $("#"+id+"_next"); if (el) el.textContent = String(uiStep+1).padStart(2,"0"); });
     renderStepStates();
-    ["303a","303b"].forEach(id => {
-      if (!state.autoMode[id]) return;
-      const autos = state.automation[id] || {};
-      for (const [knobName, arr] of Object.entries(autos)) {
-        if (!Array.isArray(arr)) continue;
-        const knobEl = document.querySelector(`[data-knob="${id}_${knobName}"]`);
-        if (!knobEl || manualDrags.has(knobEl.dataset.knob)) continue;
-        const v = arr[uiStep] ?? 50;
-        updateKnobVisual(knobEl, v, +knobEl.dataset.min, +knobEl.dataset.max);
-        knobEl.classList.add("automated");
-      }
-      // Update playhead
-      const svg = document.querySelector(`[data-auto-graph="${id}"]`);
-      if (svg) {
-        const ph = svg.querySelector(".playhead");
-        if (ph) {
-          const stepW = 160 / 16;
-          const x = ((uiStep >= 0 ? uiStep : 0) + 0.5) * stepW;
-          ph.setAttribute("x1", x);
-          ph.setAttribute("x2", x);
-        }
-      }
-    });
   }
+  // Keep each physical TB-303 knob visually locked to the value stored at the active sequencer step.
+  // Do this every animation frame so the needle never remains at its base/center angle during automation.
+  ["303a","303b"].forEach(id => {
+    if (!state.autoMode[id]) return;
+    const autos = state.automation[id] || {};
+    const selected = state.autoSelected[id] || "cutoff";
+    const names = new Set([...Object.keys(autos), selected]);
+    names.forEach(knobName => {
+      const knobEl = document.querySelector(`[data-knob="${id}_${knobName}"]`);
+      if (!knobEl || manualDrags.has(knobEl.dataset.knob)) return;
+      const arr = Array.isArray(autos[knobName]) ? autos[knobName] : getAutoArray(id, knobName);
+      const normalized = Math.max(0, Math.min(100, Number(arr[uiStep] ?? 50)));
+      const v = mapAutoToKnob(normalized, id, knobName);
+      updateKnobVisual(knobEl, v, +knobEl.dataset.min, +knobEl.dataset.max);
+      knobEl.classList.add("automated");
+    });
+    // The selected control is always refreshed last to guarantee the visible upper knob matches the cable point.
+    const selectedEl = document.querySelector(`[data-knob="${id}_${selected}"]`);
+    if (selectedEl && !manualDrags.has(selectedEl.dataset.knob)) {
+      const arr = Array.isArray(autos[selected]) ? autos[selected] : getAutoArray(id, selected);
+      const normalized = Math.max(0, Math.min(100, Number(arr[uiStep] ?? 50)));
+      updateKnobVisual(selectedEl, mapAutoToKnob(normalized, id, selected), +selectedEl.dataset.min, +selectedEl.dataset.max);
+      selectedEl.classList.add("automated");
+    }
+  });
   requestAnimationFrame(uiLoop);
 }
 function scheduleStep(step, when) {
@@ -524,9 +580,9 @@ function restoreKnobVisuals(id) {
 }
 
 /* ============ TRANSPORT ============ */
-$("#play").onclick = async () => { const ok = await ensureRunning(); if (!ok) return; if (!state.playing) { state.playing = true; paintTransport(); startScheduler(); } };
+$("#play").onclick = async () => { const ok = await ensureRunning(); if (!ok) return; await Promise.all(["808","909"].filter(dev=>state.seqEnabled[dev]).map(dev=>loadRepoSamples(dev))); if (!state.playing) { state.playing = true; paintTransport(); startScheduler(); } };
 $("#stop").onclick = () => { state.playing = false; state.recording = false; stopScheduler(); state.step = 0; $("#bar").textContent = "001"; paintTransport(); renderStepStates(); };
-$("#record").onclick = async () => { const ok = await ensureRunning(); if (!ok) return; state.recording = !state.recording; if (state.recording && !state.playing) { state.playing = true; paintTransport(); startScheduler(); } paintTransport(); };
+$("#record").onclick = async () => { const ok = await ensureRunning(); if (!ok) return; if (!state.recording) await Promise.all(["808","909"].filter(dev=>state.seqEnabled[dev]).map(dev=>loadRepoSamples(dev))); state.recording = !state.recording; if (state.recording && !state.playing) { state.playing = true; paintTransport(); startScheduler(); } paintTransport(); };
 function paintTransport() {
   const play = $("#play"), stop = $("#stop"), rec = $("#record");
   [play, stop, rec].forEach(b => { b.style.background = ""; b.style.color = ""; b.style.boxShadow = ""; });
@@ -540,6 +596,13 @@ function setupKnobDrag(el, getVal, setVal, min, max, pixelsPerFull = 250, onMove
   let dragging = false, startY = 0, startVal = 0;
   function onDown(e) {
     unlock();
+    const idForAuto = el.dataset.knob?.startsWith("303a_") ? "303a" : el.dataset.knob?.startsWith("303b_") ? "303b" : null;
+    if (idForAuto && state.autoMode[idForAuto]) {
+      state.autoSelected[idForAuto] = el.dataset.knob.split("_").slice(1).join("_");
+      updateAutoPanel(idForAuto);
+      e.preventDefault();
+      return;
+    }
     dragging = true; startY = e.clientY; startVal = getVal();
     manualDrags.add(el.dataset.knob || "");
     el.classList.remove("automated");
@@ -581,6 +644,17 @@ function makeKnob(el) {
     el.title = knobId + ": " + Math.round(val*100)/100;
     applyKnob(knobId, val);
     if (knobId === "shuffle") setShuffle(val);
+    if (devId && state.autoMode[devId] && manualDrags.has(knobId)) {
+      const knobName = knobId.split("_").slice(1).join("_");
+      state.autoSelected[devId] = knobName;
+      if (!state.automation[devId]) state.automation[devId] = {};
+      if (!Array.isArray(state.automation[devId][knobName])) state.automation[devId][knobName] = getAutoArray(devId, knobName).slice();
+      const step = Math.max(0, Math.min(15, state.selectedStep[devId] ?? state.step ?? 0));
+      state.automation[devId][knobName][step] = Math.round(((val - min) / (max - min || 1)) * 100);
+      el.classList.add("automated");
+      renderAutoGraph(devId);
+      updateAutoPanel(devId);
+    }
   };
   el.addEventListener("pointerdown", () => {
     if (devId && state.autoMode[devId]) {
@@ -763,7 +837,10 @@ function synthMarkup(id, title) {
           <button data-auto-close="${id}">×</button>
         </div>
       </div>
-      <svg class="auto-graph" data-auto-graph="${id}" viewBox="0 0 160 50" preserveAspectRatio="none"></svg>
+      <div class="auto-graph-wrap">
+        <svg class="auto-graph" data-auto-graph="${id}" viewBox="0 0 320 72" preserveAspectRatio="none" role="img" aria-label="16-step TV-303 automation cable"></svg>
+        <div class="auto-graph-labels"><span>STEP 01</span><span>16-STEP CABLE AUTOMATION</span><span>STEP 16</span></div>
+      </div>
     </div>
   </section>`;
 }
@@ -771,16 +848,30 @@ function synthMarkup(id, title) {
 function makeSynths() {
   const root = $("#synths");
   root.innerHTML = synthMarkup("303a","TB-303") + synthMarkup("303b","TB-303");
-  $$(".knob", root).forEach(makeKnob);
   $$("[data-shuffle-tb]", root).forEach(el => makeShuffleKnob(el));
   $$("[data-auto-graph]").forEach(setupAutoGraph);
+  $$("[data-auto-control-knob]").forEach(setupAutoControlKnob);
 
   root.addEventListener("click", e => {
     const b = e.target.closest("button");
     if (!b) return;
     if (b.dataset.wave) { const id = b.dataset.device; state.waveform[id] = b.dataset.wave === "pulse" ? "square" : "sawtooth"; $$(`[data-wave][data-device="${id}"]`).forEach(x => x.classList.toggle("active", x === b)); return; }
-    if (b.dataset.autoBtn) { const id = b.dataset.autoBtn; state.autoMode[id] = !state.autoMode[id]; b.classList.toggle("active", state.autoMode[id]); updateAutoPanel(id); if (!state.autoMode[id]) restoreKnobVisuals(id); return; }
-    if (b.dataset.autoClose) { const id = b.dataset.autoClose; state.autoMode[id] = false; document.querySelector(`[data-auto-btn="${id}"]`).classList.remove("active"); updateAutoPanel(id); restoreKnobVisuals(id); return; }
+    if (b.dataset.autoBtn) {
+      const id = b.dataset.autoBtn;
+      const panel = document.querySelector(`[data-auto-panel="${id}"]`);
+      if (state.autoMode[id] && panel && panel.hidden) { updateAutoPanel(id); return; }
+      state.autoMode[id] = !state.autoMode[id];
+      b.classList.toggle("active", state.autoMode[id]);
+      updateAutoPanel(id);
+      if (!state.autoMode[id]) restoreKnobVisuals(id);
+      return;
+    }
+    if (b.dataset.autoClose) {
+      const id = b.dataset.autoClose;
+      const panel = document.querySelector(`[data-auto-panel="${id}"]`);
+      if (panel) panel.hidden = true;
+      return;
+    }
     if (b.dataset.autoClear) {
       const id = b.dataset.autoClear;
       const knob = state.autoSelected[id];
@@ -794,6 +885,7 @@ function makeSynths() {
       const id = b.closest("[data-steps]").dataset.steps;
       const idx = +b.dataset.step;
       state.selectedStep[id] = idx;
+      if(state.autoMode[id]) updateAutoPanel(id);
       if (state.pitchMode[id]) {
         const delta = e.shiftKey ? -1 : 1;
         let pb = state.pitchBend[id][idx] + delta;
@@ -841,6 +933,33 @@ function makeSynths() {
   });
 }
 
+/* Dedicated automation knob: records one value per selected step. */
+function setupAutoControlKnob(el) {
+  let dragging=false, startY=0, startVal=50;
+  const id=el.dataset.autoControlKnob;
+  const set=v=>{
+    const value=Math.max(0,Math.min(100,v));
+    const step=Math.max(0,Math.min(15,state.selectedStep[id] ?? state.step ?? 0));
+    const name=state.autoSelected[id] || "cutoff";
+    if(!state.automation[id]) state.automation[id]={};
+    if(!Array.isArray(state.automation[id][name])) state.automation[id][name]=getAutoArray(id,name).map(x=>Math.round((x/100)*100));
+    state.automation[id][name][step]=Math.round(value);
+    el.style.setProperty("--angle",(-120+value*2.4)+"deg");
+    el.setAttribute("aria-valuenow",String(Math.round(value)));
+    renderAutoGraph(id);
+  };
+  const get=()=>{
+    const step=Math.max(0,Math.min(15,state.selectedStep[id] ?? state.step ?? 0));
+    const arr=getAutoArray(id,state.autoSelected[id]||"cutoff");
+    return Math.max(0,Math.min(100,arr[step] ?? 50));
+  };
+  const down=e=>{ if(!state.autoMode[id])return; unlock();dragging=true;startY=e.clientY;startVal=get();try{el.setPointerCapture(e.pointerId)}catch(_){}e.preventDefault(); };
+  const move=e=>{if(!dragging)return;set(startVal+(startY-e.clientY)*0.8);};
+  const up=e=>{dragging=false;try{el.releasePointerCapture(e.pointerId)}catch(_){}};
+  el.addEventListener("pointerdown",down);el.addEventListener("pointermove",move);el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up);
+  el.addEventListener("keydown",e=>{if(!state.autoMode[id])return;if(e.key==="ArrowUp"||e.key==="ArrowRight"){set(get()+2);e.preventDefault()}if(e.key==="ArrowDown"||e.key==="ArrowLeft"){set(get()-2);e.preventDefault()}});
+}
+
 /* ============ AUTO PANEL ============ */
 function updateAutoPanel(id) {
   const panel = document.querySelector(`[data-auto-panel="${id}"]`);
@@ -861,7 +980,10 @@ function getAutoArray(id, knobName) {
   if (state.automation[id] && state.automation[id][knobName]) return state.automation[id][knobName];
   const knobEl = document.querySelector(`[data-knob="${id}_${knobName}"]`);
   const baseVal = state.knobs[`${id}_${knobName}`] ?? (knobEl ? +knobEl.dataset.value : 50);
-  return new Array(16).fill(baseVal);
+  const min = knobEl ? +knobEl.dataset.min : 0;
+  const max = knobEl ? +knobEl.dataset.max : 100;
+  const normalized = Math.max(0,Math.min(100,((baseVal-min)/(max-min||1))*100));
+  return new Array(16).fill(normalized);
 }
 function smoothCurvePath(points, width) {
   if (points.length < 2) return "";
@@ -883,194 +1005,354 @@ function smoothCurvePath(points, width) {
 function renderAutoGraph(id) {
   const svg = document.querySelector(`[data-auto-graph="${id}"]`);
   if (!svg) return;
-  const knob = state.autoSelected[id];
-  const values = getAutoArray(id, knob);
-  const w = 160, h = 50, stepW = w / 16;
-  const points = values.map((v, i) => [i*stepW + stepW/2, h - (v/100)*h]);
-  
+  const knobName = state.autoSelected[id] || "cutoff";
+  const values = getAutoArray(id, knobName);
+  const w = 320, h = 72, stepW = w / 16, top = 8, usableH = 56;
+  const points = values.map((v, i) => [i * stepW + stepW / 2, top + (1 - Math.max(0,Math.min(100,v))/100) * usableH]);
   let grid = "";
   for (let i = 0; i <= 16; i++) {
-    const isQuarter = i % 4 === 0;
-    grid += `<line x1="${i*stepW}" y1="0" x2="${i*stepW}" y2="${h}" stroke="${isQuarter ? '#1a2535' : '#0d1220'}" stroke-width="${isQuarter ? 0.8 : 0.4}"/>`;
+    const quarter = i % 4 === 0;
+    grid += `<line x1="${i*stepW}" y1="4" x2="${i*stepW}" y2="68" stroke="${quarter ? '#70737b' : '#363941'}" stroke-width="${quarter ? 1 : .6}" opacity="${quarter ? .55 : .7}"/>`;
   }
   for (let i = 0; i <= 4; i++) {
-    const isMid = i === 2;
-    grid += `<line x1="0" y1="${i*h/4}" x2="${w}" y2="${i*h/4}" stroke="${isMid ? '#1a2535' : '#0d1220'}" stroke-width="${isMid ? 0.7 : 0.4}" ${isMid ? 'stroke-dasharray="2 2"' : ''}/>`;
+    const y = top + i * usableH / 4;
+    grid += `<line x1="0" y1="${y}" x2="${w}" y2="${y}" stroke="${i===2?'#666a72':'#343740'}" stroke-width=".6" stroke-dasharray="${i===2?'3 3':'1 3'}"/>`;
   }
-  
   const path = smoothCurvePath(points, w);
-  const areaPath = path + ` L ${w} ${h} L 0 ${h} Z`;
-  
+  const selectedStep = Math.max(0,Math.min(15,state.selectedStep[id] ?? state.step ?? 0));
   const defs = `<defs>
-    <linearGradient id="curveGrad_${id}" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#ff3a3a"/>
-      <stop offset="50%" stop-color="#ffa040"/>
-      <stop offset="100%" stop-color="#ff3a3a"/>
-    </linearGradient>
-    <linearGradient id="areaGrad_${id}" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="rgba(255,80,64,0.30)"/>
-      <stop offset="60%" stop-color="rgba(255,80,64,0.08)"/>
-      <stop offset="100%" stop-color="rgba(255,80,64,0.01)"/>
-    </linearGradient>
-    <filter id="glow_${id}" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="1.2" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <filter id="dotGlow_${id}" x="-100%" y="-100%" width="300%" height="300%">
-      <feGaussianBlur stdDeviation="1.5"/>
-    </filter>
+    <linearGradient id="cable_${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd18a"/><stop offset=".48" stop-color="#ff9d38"/><stop offset="1" stop-color="#a84412"/></linearGradient>
+    <linearGradient id="node_${id}" x1="0" y1="0" x2=".25" y2="1"><stop offset="0" stop-color="#fff2d0"/><stop offset=".35" stop-color="#ffb24e"/><stop offset="1" stop-color="#8b3508"/></linearGradient>
+    <filter id="cableShadow_${id}" x="-20%" y="-40%" width="140%" height="180%"><feGaussianBlur in="SourceAlpha" stdDeviation="1.6" result="blur"/><feOffset dy="1.5" result="offset"/><feComponentTransfer><feFuncA type="linear" slope=".9"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="nodeShadow_${id}" x="-100%" y="-100%" width="300%" height="300%"><feDropShadow dx="0" dy="1.2" stdDeviation="1.4" flood-color="#000" flood-opacity=".95"/></filter>
   </defs>`;
-  
-  const dots = points.map(([x,y]) =>
-    `<circle cx="${x}" cy="${y}" r="3" fill="#ff8030" opacity="0.35" filter="url(#dotGlow_${id})"/>
-     <circle cx="${x}" cy="${y}" r="2" fill="#ffb060" stroke="#3a1800" stroke-width="0.5"/>`
-  ).join("");
-  
-  const playheadX = (Math.max(0, state.step) + 0.5) * stepW;
-  const playhead = `<line class="playhead" x1="${playheadX}" y1="0" x2="${playheadX}" y2="${h}" stroke="#3aff80" stroke-width="1.2" opacity="0.65"/>`;
-  
-  svg.innerHTML = `${defs}
-    <rect width="${w}" height="${h}" fill="none"/>
-    ${grid}
-    <path d="${areaPath}" fill="url(#areaGrad_${id})"/>
-    <path d="${path}" fill="none" stroke="url(#curveGrad_${id})" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow_${id})"/>
-    ${dots}
-    ${playhead}`;
+  const dots = points.map(([x,y],i) => {
+    const active = i === selectedStep;
+    return `<circle cx="${x}" cy="${y}" r="${active?6.2:5}" fill="#000" opacity=".8" transform="translate(0 1.2)"/>
+      ${active?`<circle cx="${x}" cy="${y}" r="8" fill="#ff9c32" opacity=".2"/>`:''}
+      <circle data-auto-point="${i}" cx="${x}" cy="${y}" r="${active?5.1:4.2}" fill="url(#node_${id})" stroke="${active?'#fff0c4':'#69320f'}" stroke-width="${active?1.4:1}" filter="url(#nodeShadow_${id})"/>`;
+  }).join("");
+  svg.innerHTML = `${defs}<rect x="0" y="0" width="${w}" height="${h}" fill="transparent"/>${grid}
+    <path d="${path}" fill="none" stroke="#050505" stroke-width="5" opacity=".85" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 1.5)"/>
+    <path d="${path}" fill="none" stroke="url(#cable_${id})" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" filter="url(#cableShadow_${id})"/>
+    <path d="${path}" fill="none" stroke="#ffe0ad" stroke-width=".7" opacity=".85" stroke-linecap="round"/>
+    ${dots}`;
 }
 function setupAutoGraph(svg) {
   const id = svg.dataset.autoGraph;
-  let drawing = false;
-  const setFromEvent = e => {
-    const rect = svg.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = 1 - (e.clientY - rect.top) / rect.height;
-    const step = Math.min(15, Math.max(0, Math.floor(x * 16)));
-    const value = Math.round(Math.min(100, Math.max(0, y * 100)));
-    const knob = state.autoSelected[id];
+  let dragging = false;
+  let activeStep = -1;
+  let pointerId = null;
+  let dragOffsetY = 0;
+
+  const getGraphValueFromY = (clientY, rect) => {
+    const graphY = clientY - rect.top - dragOffsetY;
+    return Math.round((1 - Math.max(0, Math.min(1, (graphY - 8) / 56))) * 100);
+  };
+
+  const updateSinglePoint = (step, value) => {
+    const knobName = state.autoSelected[id] || "cutoff";
     if (!state.automation[id]) state.automation[id] = {};
-    if (!state.automation[id][knob]) {
-      const knobEl = document.querySelector(`[data-knob="${id}_${knob}"]`);
-      const baseVal = state.knobs[`${id}_${knob}`] ?? (knobEl ? +knobEl.dataset.value : 50);
-      state.automation[id][knob] = new Array(16).fill(baseVal);
+    if (!Array.isArray(state.automation[id][knobName])) {
+      state.automation[id][knobName] = getAutoArray(id, knobName).slice();
     }
-    state.automation[id][knob][step] = value;
+    // Change ONLY the node the user selected. Neighboring steps are never interpolated or randomized.
+    state.automation[id][knobName][step] = Math.max(0, Math.min(100, Math.round(value)));
+    state.selectedStep[id] = step;
+    state.step = step;
+    const knobEl = document.querySelector(`[data-knob="${id}_${knobName}"]`);
+    if (knobEl) {
+      updateKnobVisual(knobEl, mapAutoToKnob(state.automation[id][knobName][step], id, knobName), +knobEl.dataset.min, +knobEl.dataset.max);
+      knobEl.classList.add("automated");
+    }
     renderAutoGraph(id);
   };
-  svg.addEventListener("pointerdown", e => { drawing = true; svg.setPointerCapture(e.pointerId); setFromEvent(e); });
-  svg.addEventListener("pointermove", e => { if (drawing) setFromEvent(e); });
-  const up = e => { drawing = false; try { svg.releasePointerCapture(e.pointerId); } catch(_){} };
-  svg.addEventListener("pointerup", up);
-  svg.addEventListener("pointercancel", up);
-}
 
+  const finish = e => {
+    if (pointerId !== null && e && e.pointerId !== undefined && e.pointerId !== pointerId) return;
+    dragging = false;
+    activeStep = -1;
+    pointerId = null;
+    try { if (e) svg.releasePointerCapture(e.pointerId); } catch (_) {}
+  };
+
+  svg.addEventListener("pointerdown", e => {
+    if (!state.autoMode[id]) return;
+    const rect = svg.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const x = Math.max(0, Math.min(.9999, (e.clientX - rect.left) / rect.width));
+    activeStep = Math.min(15, Math.max(0, Math.floor(x * 16)));
+    const knobName = state.autoSelected[id] || "cutoff";
+    const values = getAutoArray(id, knobName);
+    const currentValue = Math.max(0, Math.min(100, values[activeStep] ?? 50));
+    const pointY = 8 + (1 - currentValue / 100) * 56;
+    // Preserve the grab offset so a tap does not jump the node or alter adjacent steps.
+    dragOffsetY = (e.clientY - rect.top) - pointY;
+    state.selectedStep[id] = activeStep;
+    state.step = activeStep;
+    dragging = true;
+    pointerId = e.pointerId;
+    try { svg.setPointerCapture(e.pointerId); } catch (_) {}
+    renderAutoGraph(id);
+    e.preventDefault();
+  });
+
+  svg.addEventListener("pointermove", e => {
+    if (!dragging || activeStep < 0 || (pointerId !== null && e.pointerId !== pointerId)) return;
+    const rect = svg.getBoundingClientRect();
+    const value = getGraphValueFromY(e.clientY, rect);
+    updateSinglePoint(activeStep, value);
+    e.preventDefault();
+  });
+  svg.addEventListener("pointerup", finish);
+  svg.addEventListener("pointercancel", finish);
+}
 /* ============ DRUMS ============ */
-const drumSamples = {808:{}, 909:{}};
+// Repository-only drum audio. No synthesized TR fallback is permitted.
+const drumSamples = {808:{}, 909:{}}; // factory samples by voice/variant
+const localDrumSamples = {808:{},909:{}}; // user-selected local sample per voice
+const drumSampleCursors = Object.create(null);
+const drumLoadPromises = {808:null,909:null};
+const DIRT_TREE_URL = "https://api.github.com/repos/tidalcycles/Dirt-Samples/git/trees/master?recursive=1";
+const DIRT_RAW_BASE = "https://raw.githubusercontent.com/tidalcycles/Dirt-Samples/master/";
+let dirtTreePromise = null;
+const drumFolderMap = {
+  808: {
+    BD:{BD:["808bd"]}, SD:{SD:["808sd"]},
+    LT:{LT:["808lt"],LC:["808lc"]}, MT:{MT:["808mt"],MC:["808mc"]},
+    HT:{HT:["808ht"],HC:["808hc"]}, RS:{RS:[],CG:[]}, CP:{CP:[],MA:[]}, CB:{CB:[]},
+    CY:{CY:["808cy"]}, OH:{OH:["808oh"]}, CH:{CH:["808oh"]}
+  },
+  909: {}
+};
+function getDirtTree(){
+  if(!dirtTreePromise) dirtTreePromise = fetch(DIRT_TREE_URL,{cache:"force-cache"}).then(r=>{
+    if(!r.ok) throw new Error("GitHub sample index unavailable (HTTP "+r.status+")");
+    return r.json();
+  }).then(data=>{
+    if(!Array.isArray(data.tree)) throw new Error("GitHub sample index is invalid");
+    return data.tree.filter(x=>x.type==="blob" && /\.wav$/i.test(x.path)).map(x=>({path:x.path}));
+  }).catch(async githubError=>{
+    // CDN metadata fallback: this remains a browser-loadable sample source, unlike SuperDirt's server startup script.
+    const r=await fetch("https://data.jsdelivr.com/v1/package/gh/tidalcycles/Dirt-Samples@master/flat",{cache:"force-cache"});
+    if(!r.ok) throw githubError;
+    const data=await r.json();
+    const files=Array.isArray(data.files)?data.files:[];
+    const paths=files.map(x=>typeof x==="string"?x:x.name).filter(x=>typeof x==="string" && /\.wav$/i.test(x));
+    if(!paths.length) throw githubError;
+    return paths.map(path=>({path:path.replace(/^\//,"" )}));
+  }).catch(err=>{dirtTreePromise=null;throw err;});
+  return dirtTreePromise;
+}
+function sampleFolderFor(dev,voice,variant){
+  const voices=drumFolderMap[dev]||{};
+  const variants=voices[voice];
+  return variants ? (variants[variant]||variants[voice]||[]).slice() : [];
+}
+const ABUSE_META={
+  808:{json:"https://raw.githubusercontent.com/smpldsnds/drum-abuse-vol2/main/machines/roland-tr-808.json",base:"https://smpldsnds.github.io/drum-abuse-vol2/samples/",id:"808"},
+  909:{json:"https://raw.githubusercontent.com/smpldsnds/drum-abuse-vol3/main/machines/roland-tr-909.json",base:"https://smpldsnds.github.io/drum-abuse-vol3/samples/",id:"909"}
+};
+const abuseLoadPromises={808:null,909:null};
+const abuseVoiceMap={
+  808:{"Kick":[["BD","BD"]],"Snare":[["SD","SD"]],"Tom":[["LT","LT"],["MT","MT"],["HT","HT"]],"Rim":[["RS","RS"]],"Clap":[["CP","CP"]],"Shaker":[["CP","MA"]],"Cabasa":[["CP","MA"]],"Conga":[["RS","CG"]],"Cowbell":[["CB","CB"]],"Cymbal":[["CY","CY"]],"Ride":[["CY","CY"]],"Hi-Hat Open":[["OH","OH"]],"Hi-Hat Closed":[["CH","CH"]]},
+  909:{"Kick":[["BD","BD"]],"Snare":[["SD","SD"]],"Tom":[["LT","LT"],["MT","MT"],["HT","HT"]],"Clap":[["CP","CP"]],"Hi-Hat Closed":[["CH","CH"],["CC","CC"]],"Hi-Hat Open":[["OH","OH"]],"Crash":[["CR","CR"]],"Ride":[["RS","RS"]],"Rim":[["RS","RS"]],"Cowbell":[["CB","CB"]],"Conga":[["LT","LT"]]}
+};
+async function loadAbuseSamples(dev, force=false){
+  if(!force && abuseLoadPromises[dev]) return abuseLoadPromises[dev];
+  const cfg=ABUSE_META[dev];
+  const promise=(async()=>{
+    const res=await fetch(cfg.json,{cache:"force-cache"});
+    if(!res.ok) throw new Error("Drum Abuse metadata unavailable");
+    const meta=await res.json();
+    const sets=Array.isArray(meta.sample_sets)?meta.sample_sets:[];
+    // Prefer the compact first factory set, which contains the core voices and avoids downloading the full archive.
+    const set=sets.find(x=>String(x.set)==="1")||sets[0];
+    if(!set || !Array.isArray(set.samples) || !Array.isArray(set.sample_instruments)) throw new Error("Invalid Drum Abuse sample set");
+    const jobs=[];
+    for(let i=0;i<set.samples.length;i++){
+      const instrument=set.sample_instruments[i], file=set.samples[i];
+      for(const [voice,variant] of (abuseVoiceMap[dev][instrument]||[])){
+        const key=dev+":"+voice+":"+variant;
+        if(!force && drumSamples[dev][key]?.length) continue;
+        jobs.push({key,path:cfg.base+set.url_path.split("/").map(encodeURIComponent).join("/")+"/"+encodeURIComponent(file)});
+      }
+    }
+    // Keep the first few samples per voice, but include variants for rotation.
+    const counts={};
+    for(const job of jobs){const n=counts[job.key]||0;if(n>=5)continue;counts[job.key]=n+1;try{
+      const r=await fetch(job.path,{cache:"force-cache"});if(!r.ok)continue;
+      const b=await audio.decodeAudioData(await r.arrayBuffer());if(!b?.length)continue;
+      (drumSamples[dev][job.key]||(drumSamples[dev][job.key]=[])).push(b);
+    }catch(err){console.warn("Could not load sample",job.path,err);}}
+    return Object.values(drumSamples[dev]).some(x=>Array.isArray(x)&&x.length);
+  })().finally(()=>{if(abuseLoadPromises[dev]===promise)abuseLoadPromises[dev]=null;});
+  abuseLoadPromises[dev]=promise;return promise;
+}
+function loadRepoSamples(dev, force=false){
+  if(!force && drumLoadPromises[dev]) return drumLoadPromises[dev];
+  const pending=performRepoSampleLoad(dev,force);
+  drumLoadPromises[dev]=pending;
+  pending.finally(()=>{if(drumLoadPromises[dev]===pending)drumLoadPromises[dev]=null;});
+  return pending;
+}
+async function performRepoSampleLoad(dev, force=false){
+  const status=$("#status"+dev);
+  if(status) status.textContent="LOADING";
+  try{
+    const tree=await getDirtTree();
+    const folders=new Set();
+    Object.values(drumFolderMap[dev]||{}).forEach(variants=>Object.values(variants).forEach(list=>list.forEach(f=>folders.add(f))));
+    const files=tree.filter(x=>folders.has(x.path.split("/")[0]));
+    const grouped={};
+    files.forEach(file=>{const folder=file.path.split("/")[0];(grouped[folder]||(grouped[folder]=[])).push(file.path);});
+    Object.values(grouped).forEach(a=>a.sort((a,b)=>a.localeCompare(b,undefined,{numeric:true})));
+    const tasks=[];
+    for(const [voice,variants] of Object.entries(drumFolderMap[dev]||{})){
+      for(const [variant,folderList] of Object.entries(variants)){
+        const key=dev+":"+voice+":"+variant;
+        if(!force && Array.isArray(drumSamples[dev][key]) && drumSamples[dev][key].length) continue;
+        const paths=folderList.flatMap(folder=>grouped[folder]||[]);
+        if(!paths.length) continue;
+        tasks.push(async()=>{
+          const decoded=[];
+          for(const path of paths){
+            try{
+              let response;
+              try { response=await fetch(DIRT_RAW_BASE+path,{cache:"force-cache"}); } catch(_) {}
+              if(!response || !response.ok) response=await fetch("https://cdn.jsdelivr.net/gh/tidalcycles/Dirt-Samples@master/"+path,{cache:"force-cache"});
+              if(!response.ok) continue;
+              const bytes=await response.arrayBuffer();
+              const buffer=await audio.decodeAudioData(bytes);
+              if(buffer && buffer.length) decoded.push(buffer);
+            }catch(e){console.warn("Could not load Dirt sample:",path,e);}
+          }
+          if(decoded.length) drumSamples[dev][key]=decoded;
+        });
+      }
+    }
+    // Small batches avoid flooding mobile connections while still loading the kit.
+    for(let i=0;i<tasks.length;i+=4) await Promise.all(tasks.slice(i,i+4).map(run=>run()));
+    try{await loadAbuseSamples(dev,force);}catch(e){console.warn("Secondary sample repository unavailable for TR-"+dev,e);}
+    const count=Object.entries(drumSamples[dev]).filter(([k,v])=>k.startsWith(dev+":")&&Array.isArray(v)&&v.length).length;
+    if(status) status.textContent=count?"SAMPLES OK":"RETRY";
+    return count>0;
+  }catch(err){
+    console.error("Dirt-Samples load failed for TR-"+dev,err);
+    if(status) status.textContent="RETRY";
+    return false;
+  }
+}
+function getRepoSample(dev,voice,variant){
+  const local=localDrumSamples[dev]?.[voice];
+  if(local) return local;
+  const key=dev+":"+voice+":"+variant;
+  let list=drumSamples[dev][key];
+  if(!list || !list.length) return null;
+  const idx=drumSampleCursors[key]||0;
+  drumSampleCursors[key]=(idx+1)%list.length;
+  return list[idx%list.length];
+}
 function makeDrums() {
+  const knobMarkup=(dev,v)=>`<div class="v-knobs">
+    <div class="mini-control auto-level"><div class="mini-knob" data-vknob="${dev}:${v.id}:level" data-min="0" data-max="100" data-value="80" title="Level"></div></div>
+    <div class="mini-control auto-decay"><div class="mini-knob" data-vknob="${dev}:${v.id}:decay" data-min="0" data-max="100" data-value="50" title="Decay"></div></div>
+    <div class="mini-control auto-tune"><div class="mini-knob" data-vknob="${dev}:${v.id}:tune" data-min="0" data-max="100" data-value="50" title="Tune"></div></div>
+  </div><div class="v-actions"><label title="Load a local audio sample for ${v.name}" aria-label="Load local sample for ${v.name}"><span data-sample-label="${dev}:${v.id}">S</span><input type="file" accept="audio/*,.wav,.mp3,.ogg,.aif,.aiff,.m4a" data-local-sample="${dev}:${v.id}"></label><button type="button" data-mute="${dev}:${v.id}" aria-label="Mute ${v.name}" title="Mute">M</button></div>`;
   $("#voices808").innerHTML = voices808.map(v => {
-    const hasVar = !!v.variant;
+    const hasVar=!!v.variant;
     return `<div class="voice-cell">
       <div class="voice-header">
-        <button class="voice-btn ${v.id===state.selectedVoice[808]?"selected":""}" data-voice="${v.id}" data-device="808">${v.id}</button>
-        ${hasVar ? `<button class="v-switch" data-vswitch="808:${v.id}">⇄</button>` : ""}
+        <button class="voice-btn ${v.id===state.selectedVoice[808]?"selected":""}" data-voice="${v.id}" data-device="808" aria-label="TR-808 ${v.name}">${v.id}</button>
+        ${hasVar?`<button class="v-switch" data-vswitch="808:${v.id}" aria-label="Change ${v.name} sample">⇄</button>`:""}
       </div>
-      <div class="v-knobs">
-        <div class="mini-knob" data-vknob="808:${v.id}:tune" data-min="0" data-max="100" data-value="50" title="TUNE"></div>
-        <div class="mini-knob" data-vknob="808:${v.id}:level" data-min="0" data-max="100" data-value="80" title="LEVEL"></div>
-        <div class="mini-knob" data-vknob="808:${v.id}:decay" data-min="0" data-max="100" data-value="50" title="DECAY"></div>
-      </div>
-      <div class="v-actions">
-        <button class="v-mute" data-voice-mute="808:${v.id}">M</button>
-        <label class="v-sample">S<input type="file" accept="audio/*" data-voice-sample="808:${v.id}"></label>
-      </div>
+      ${knobMarkup("808",v)}
     </div>`;
   }).join("");
-  $("#steps808").innerHTML = Array.from({length:16},(_,i) => `<button class="step-btn" data-device-step="808" data-step="${i}">${i+1}</button>`).join("");
-  $("#voices909").innerHTML = voices909.map(v => `
-    <div class="voice-cell">
-      <div class="voice-header">
-        <button class="voice-btn ${v.id===state.selectedVoice[909]?"selected":""}" data-voice="${v.id}" data-device="909">${v.id}</button>
-      </div>
-      <div class="v-knobs">
-        <div class="mini-knob" data-vknob="909:${v.id}:tune" data-min="0" data-max="100" data-value="50" title="TUNE"></div>
-        <div class="mini-knob" data-vknob="909:${v.id}:level" data-min="0" data-max="100" data-value="80" title="LEVEL"></div>
-        <div class="mini-knob" data-vknob="909:${v.id}:decay" data-min="0" data-max="100" data-value="50" title="DECAY"></div>
-      </div>
-      <div class="v-actions">
-        <button class="v-mute" data-voice-mute="909:${v.id}">M</button>
-        <label class="v-sample">S<input type="file" accept="audio/*" data-voice-sample="909:${v.id}"></label>
-      </div>
-    </div>
-  `).join("");
-  $("#steps909").innerHTML = Array.from({length:16},(_,i) => `<button class="step-btn" data-device-step="909" data-step="${i}">${i+1}</button>`).join("");
+  $("#steps808").innerHTML=Array.from({length:16},(_,i)=>`<button class="step-btn" data-device-step="808" data-step="${i}">${i+1}</button>`).join("");
+  $("#voices909").innerHTML=voices909.map(v=>`<div class="voice-cell">
+    <div class="voice-header"><button class="voice-btn ${v.id===state.selectedVoice[909]?"selected":""}" data-voice="${v.id}" data-device="909" aria-label="TR-909 ${v.name}">${v.id}</button></div>
+    ${knobMarkup("909",v)}
+  </div>`).join("");
+  $("#steps909").innerHTML=Array.from({length:16},(_,i)=>`<button class="step-btn" data-device-step="909" data-step="${i}">${i+1}</button>`).join("");
   $$(".mini-knob").forEach(makeMiniKnob);
-  $$("[data-shuffle-knob]").forEach(el => makeShuffleKnob(el));
-  $$("[data-vol-knob]").forEach(el => makeVolKnob(el));
-  $$("[data-drum-dist]").forEach(el => makeDrumDistKnob(el));
-  $$("[data-drum-dly]").forEach(el => makeDrumDlyKnob(el));
-  $$("[data-seq]").forEach(b => {
-    b.onclick = () => {
-      const dev = b.dataset.seq;
-      state.seqEnabled[dev] = !state.seqEnabled[dev];
-      b.classList.toggle("on", state.seqEnabled[dev]);
-      b.textContent = state.seqEnabled[dev] ? "SEQ ON" : "SEQ OFF";
+  $$("[data-shuffle-knob]").forEach(makeShuffleKnob);
+  $$("[data-vol-knob]").forEach(makeVolKnob);
+  $$("[data-drum-dist]").forEach(makeDrumDistKnob);
+  $$("[data-drum-dly]").forEach(makeDrumDlyKnob);
+  $$("[data-seq]").forEach(b=>{
+    b.onclick=async()=>{
+      const dev=b.dataset.seq;
+      state.seqEnabled[dev]=!state.seqEnabled[dev];
+      b.classList.toggle("on",state.seqEnabled[dev]);
+      b.textContent=state.seqEnabled[dev]?"SEQ ON":"SEQ OFF";
+      if(state.seqEnabled[dev]){await ensureRunning();await loadRepoSamples(dev);}
     };
   });
-  $(".drum-mixer").addEventListener("click", e => {
-    if (e.target.closest("[data-voice-sample]")) return;
-    const vsw = e.target.closest("[data-vswitch]");
-    if (vsw) {
-      const [dev, vid] = vsw.dataset.vswitch.split(":");
-      const voice = voices808.find(v => v.id === vid);
-      if (!voice || !voice.variant) return;
-      const cur = state.variants[dev][vid];
-      const next = cur === vid ? voice.variant : vid;
-      state.variants[dev][vid] = next;
-      vsw.classList.toggle("active", next !== vid);
-      const vbtn = vsw.parentElement.querySelector(".voice-btn");
-      if (vbtn) vbtn.textContent = next;
+  $(".drum-mixer").addEventListener("change",async e=>{
+    const input=e.target.closest("[data-local-sample]");
+    if(!input || !input.files || !input.files[0]) return;
+    const [dev,vid]=input.dataset.localSample.split(":");
+    const file=input.files[0];
+    try{
+      await ensureRunning();
+      const bytes=await file.arrayBuffer();
+      const decoded=await audio.decodeAudioData(bytes.slice(0));
+      if(!decoded || !decoded.length) throw new Error("Empty audio sample");
+      localDrumSamples[dev][vid]=decoded;
+      const label=$(`[data-sample-label="${dev}:${vid}"]`);
+      if(label){label.textContent="S";label.classList.add("sample-loaded");label.classList.remove("sample-error");label.title="Loaded: "+file.name;}
+      const status=$("#status"+dev); if(status) status.textContent="LOCAL SAMPLE";
+    }catch(err){
+      console.error("Could not load local drum sample",err);
+      const label=$(`[data-sample-label="${dev}:${vid}"]`);
+      if(label){label.textContent="S";label.classList.add("sample-error");label.classList.remove("sample-loaded");label.title="Could not decode "+file.name;}
+    }finally{input.value="";}
+  });
+  $(".drum-mixer").addEventListener("click",e=>{
+    const mute=e.target.closest("[data-mute]");
+    if(mute){const [dev,vid]=mute.dataset.mute.split(":");const key=dev+":"+vid;state.muted[key]=!state.muted[key];mute.classList.toggle("active",state.muted[key]);return;}
+    const vsw=e.target.closest("[data-vswitch]");
+    if(vsw){
+      const [dev,vid]=vsw.dataset.vswitch.split(":");
+      const voice=voices808.find(v=>v.id===vid);
+      if(!voice||!voice.variant)return;
+      const cur=state.variants[dev][vid];
+      const next=cur===vid?voice.variant:vid;
+      state.variants[dev][vid]=next;
+      vsw.classList.toggle("active",next!==vid);
+      vsw.setAttribute("aria-pressed",String(next!==vid));
+      const vbtn=vsw.parentElement.querySelector(".voice-btn");
+      if(vbtn)vbtn.textContent=next;
       return;
     }
-    const voice = e.target.closest("[data-voice]");
-    if (voice) {
-      const dev = voice.dataset.device, id = voice.dataset.voice;
-      state.selectedVoice[dev] = id;
-      $$(`[data-voice][data-device="${dev}"]`).forEach(b => b.classList.toggle("selected", b === voice));
+    const voice=e.target.closest("[data-voice]");
+    if(voice){
+      const dev=voice.dataset.device,id=voice.dataset.voice;
+      state.selectedVoice[dev]=id;
+      $$(`[data-voice][data-device="${dev}"]`).forEach(b=>b.classList.toggle("selected",b===voice));
       updateDrumStatus(dev);
-      if (state.recording) { const entry = activePattern(dev)[state.step % state.length]; if (!entry.hits.includes(id)) entry.hits.push(id); }
-      renderStepStates(); return;
+      if(state.recording){const entry=activePattern(dev)[state.step%state.length];if(!entry.hits.includes(id))entry.hits.push(id);}
+      renderStepStates();return;
     }
-    const mute = e.target.closest("[data-voice-mute]");
-    if (mute) {
-      const key = mute.dataset.voiceMute;
-      state.muted[key] = !state.muted[key];
-      mute.classList.toggle("active", state.muted[key]);
-      mute.textContent = state.muted[key] ? "X" : "M";
-      return;
-    }
-    const stepBtn = e.target.closest("[data-device-step]");
-    if (stepBtn) {
-      const dev = stepBtn.dataset.deviceStep;
-      const idx = +stepBtn.dataset.step;
-      const pat = activePattern(dev)[idx];
-      const vid = state.selectedVoice[dev];
-      const at = pat.hits.indexOf(vid);
-      if (at >= 0) pat.hits.splice(at, 1); else pat.hits.push(vid);
-      stepBtn.classList.toggle("active", pat.hits.includes(vid));
-      return;
+    const stepBtn=e.target.closest("[data-device-step]");
+    if(stepBtn){
+      const dev=stepBtn.dataset.deviceStep,idx=+stepBtn.dataset.step;
+      const pat=activePattern(dev)[idx],vid=state.selectedVoice[dev];
+      const at=pat.hits.indexOf(vid);
+      if(at>=0)pat.hits.splice(at,1);else pat.hits.push(vid);
+      stepBtn.classList.toggle("active",pat.hits.includes(vid));
     }
   });
-  $(".drum-mixer").addEventListener("change", async e => {
-    const input = e.target.closest("[data-voice-sample]"); if (!input) return;
-    const [dev, name] = input.dataset.voiceSample.split(":");
-    const file = input.files && input.files[0]; if (!file) return;
-    try { unlock(); drumSamples[dev][name] = await audio.decodeAudioData(await file.arrayBuffer()); }
-    catch(err) { alert("Could not decode audio."); }
-    input.value = "";
-  });
-  updateDrumStatus("808"); updateDrumStatus("909");
-  renderStepStates();
+  updateDrumStatus("808");updateDrumStatus("909");renderStepStates();
+  // Preload repository WAVs on entry; playback remains subject to the browser's audio-unlock gesture.
+  loadRepoSamples("808");loadRepoSamples("909");
 }
-function updateDrumStatus(dev) { $("#status"+dev).textContent = state.selectedVoice[dev]; }
+function updateDrumStatus(dev) {
+  const el=$("#status"+dev); if(!el)return;
+  if(el.textContent==="LOADING"||el.textContent==="RETRY"||el.textContent==="NO REPO")return;
+  el.textContent=dev==="909"?"BD ONLY":state.selectedVoice[dev];
+}
 
 function renderStepStates() {
   ["303a","303b"].forEach(id => {
@@ -1137,98 +1419,25 @@ function playSynth(id, note, accent, slide, when, overrides, stepIndex) {
   osc.stop(when + Math.max(0.3, decay * 1.6));
   sub.stop(when + Math.max(0.3, decay * 1.6));
 }
-function noiseHit(dur, gain, filterType, freq, dest, t, Q) {
-  const n = Math.floor(audio.sampleRate * dur);
-  const buf = audio.createBuffer(1, n, audio.sampleRate);
-  const d = buf.getChannelData(0);
-  for (let i = 0; i < n; i++) d[i] = Math.random()*2 - 1;
-  const src = audio.createBufferSource(); src.buffer = buf;
-  const f = audio.createBiquadFilter(); f.type = filterType; f.frequency.value = Math.min(18000, Math.max(200, freq));
-  if (Q !== undefined) f.Q.value = Q;
-  const g = audio.createGain();
-  g.gain.setValueAtTime(0.0001, t);
-  g.gain.exponentialRampToValueAtTime(Math.max(0.001, gain), t + 0.004);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  src.connect(f); f.connect(g); g.connect(dest);
-  src.start(t); src.stop(t + dur + 0.01);
-}
-function oscHit(freq, endFreq, dur, type, gain, dest, t) {
-  const o = audio.createOscillator(); const g = audio.createGain();
-  o.type = type;
-  o.frequency.setValueAtTime(Math.max(20, freq), t);
-  if (endFreq !== freq) o.frequency.exponentialRampToValueAtTime(Math.max(20, endFreq), t + dur*0.45);
-  g.gain.setValueAtTime(0.0001, t);
-  g.gain.exponentialRampToValueAtTime(Math.max(0.001, gain), t + 0.003);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  o.connect(g); g.connect(dest);
-  o.start(t); o.stop(t + dur + 0.01);
-}
-
 function playDrum(dev, voiceId, accent, when) {
-  if (state.muted[dev + ":" + voiceId]) return;
-  const t = when || (audio.currentTime + 0.03);
-  const variant = state.variants[dev][voiceId] || voiceId;
-  const p = state.voiceParams[dev][voiceId] || {tune:50, level:80, decay:50, pan:0};
-  const lvl = (p.level/100) * (accent ? 1.35 : 1) * 0.85;
-  // FIX TUNE: ±2 octavas, y se aplica también al filtro de ruidos
-  const T = Math.pow(2, (p.tune - 50) / 25);
-  const decMul = 0.5 + p.decay / 100;
-  const pan = audio.createStereoPanner();
-  pan.pan.value = p.pan || 0;
-  pan.connect(drumDry[dev]); pan.connect(drumDrive[dev]);
-  if (drumSamples[dev][voiceId]) {
-    const src = audio.createBufferSource(); const g = audio.createGain();
-    src.buffer = drumSamples[dev][voiceId];
-    g.gain.value = Math.max(0.001, Math.min(1, lvl));
-    src.connect(g); g.connect(pan); src.start(t);
-    return;
-  }
-  if (dev === "808") {
-    if (voiceId === "BD") { oscHit(55*T, 30*T, 0.7*decMul, "sine", lvl, pan, t); noiseHit(0.008, lvl*0.15, "highpass", 3000*T, pan, t, 1); return; }
-    if (voiceId === "SD") { oscHit(190*T, 160*T, 0.2*decMul, "triangle", lvl*0.55, pan, t); oscHit(330*T, 280*T, 0.22*decMul, "triangle", lvl*0.35, pan, t); noiseHit(0.22*decMul, lvl*0.5, "bandpass", 1800*T, pan, t, 1.2); return; }
-    if (voiceId === "LT" || voiceId === "LC") { const f = variant === "LC" ? 220 : 105; const d = variant === "LC" ? 0.15 : 0.25; oscHit(f*T, f*T*0.7, d*decMul, "sine", lvl, pan, t); return; }
-    if (voiceId === "MT" || voiceId === "MC") { const f = variant === "MC" ? 280 : 145; const d = variant === "MC" ? 0.15 : 0.25; oscHit(f*T, f*T*0.7, d*decMul, "sine", lvl, pan, t); return; }
-    if (voiceId === "HT" || voiceId === "HC") { const f = variant === "HC" ? 350 : 195; const d = variant === "HC" ? 0.13 : 0.22; oscHit(f*T, f*T*0.7, d*decMul, "sine", lvl, pan, t); return; }
-    if (voiceId === "RS" || voiceId === "CL") {
-      if (variant === "CL") { oscHit(2200*T, 1800*T, 0.05*decMul, "sine", lvl, pan, t); noiseHit(0.02, lvl*0.3, "bandpass", 3000*T, pan, t, 3); }
-      else { oscHit(1500*T, 900*T, 0.06*decMul, "square", lvl*0.7, pan, t); noiseHit(0.04, lvl*0.25, "highpass", 3500*T, pan, t, 1); }
-      return;
-    }
-    if (voiceId === "CP" || voiceId === "MA") {
-      if (variant === "MA") noiseHit(0.05*decMul, lvl*0.7, "highpass", 5000*T, pan, t, 0.5);
-      else noiseHit(0.25*decMul, lvl*0.6, "bandpass", 1800*T, pan, t, 1.5);
-      return;
-    }
-    if (voiceId === "CB") {
-      const o1 = audio.createOscillator(), o2 = audio.createOscillator(), g = audio.createGain();
-      o1.type = "square"; o2.type = "square";
-      o1.frequency.value = 540*T; o2.frequency.value = 800*T;
-      const g1 = audio.createGain(), g2 = audio.createGain();
-      g1.gain.value = 0.5; g2.gain.value = 0.5;
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(lvl*0.5, t + 0.005);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.35*decMul);
-      o1.connect(g1); o2.connect(g2); g1.connect(g); g2.connect(g); g.connect(pan);
-      o1.start(t); o2.start(t); o1.stop(t + 0.4); o2.stop(t + 0.4);
-      return;
-    }
-    if (voiceId === "CY") { noiseHit(0.45*decMul, lvl*0.4, "highpass", 6500*T, pan, t, 0.7); return; }
-    if (voiceId === "OH") { noiseHit(0.3*decMul, lvl*0.35, "highpass", 6500*T, pan, t, 0.7); return; }
-    if (voiceId === "CH") { noiseHit(0.08*decMul, lvl*0.4, "highpass", 7500*T, pan, t, 0.7); return; }
-  }
-  if (dev === "909") {
-    if (voiceId === "BD") { oscHit(65*T, 42*T, 0.28*decMul, "sine", lvl, pan, t); noiseHit(0.015, lvl*0.4, "highpass", 2500*T, pan, t, 1); return; }
-    if (voiceId === "SD") { oscHit(220*T, 180*T, 0.12*decMul, "triangle", lvl*0.6, pan, t); noiseHit(0.16*decMul, lvl*0.7, "bandpass", 2600*T, pan, t, 1); return; }
-    if (voiceId === "LT") { oscHit(100*T, 65*T, 0.22*decMul, "sine", lvl, pan, t); noiseHit(0.005, lvl*0.2, "highpass", 3000*T, pan, t, 1); return; }
-    if (voiceId === "MT") { oscHit(140*T, 95*T, 0.2*decMul, "sine", lvl, pan, t); noiseHit(0.005, lvl*0.2, "highpass", 3000*T, pan, t, 1); return; }
-    if (voiceId === "HT") { oscHit(190*T, 130*T, 0.18*decMul, "sine", lvl, pan, t); noiseHit(0.005, lvl*0.2, "highpass", 3000*T, pan, t, 1); return; }
-    if (voiceId === "CP") { noiseHit(0.18*decMul, lvl*0.7, "bandpass", 2200*T, pan, t, 1.8); return; }
-    if (voiceId === "CH") { noiseHit(0.05*decMul, lvl*0.45, "highpass", 8000*T, pan, t, 0.8); return; }
-    if (voiceId === "CC") { noiseHit(0.04*decMul, lvl*0.5, "highpass", 6500*T, pan, t, 1.2); return; }
-    if (voiceId === "OH") { noiseHit(0.28*decMul, lvl*0.35, "highpass", 7000*T, pan, t, 0.7); return; }
-    if (voiceId === "CR") { noiseHit(0.6*decMul, lvl*0.4, "highpass", 5500*T, pan, t, 0.6); return; }
-    if (voiceId === "RS") { oscHit(1800*T, 1700*T, 0.4*decMul, "sine", lvl*0.5, pan, t); noiseHit(0.45*decMul, lvl*0.25, "highpass", 5500*T, pan, t, 0.9); return; }
-  }
+  const t=when??(audio.currentTime+0.03);
+  const variant=state.variants[dev]?.[voiceId]||voiceId;
+  if(state.muted[dev+":"+voiceId] || (state.soloed[dev] && state.soloed[dev]!==voiceId))return;
+  const p=state.voiceParams[dev]?.[voiceId]||{tune:50,level:80,decay:50,pan:0};
+  const buffer=getRepoSample(dev,voiceId,variant);
+  // Strict sample-only mode: absent repository samples stay silent; never synthesize substitutes.
+  if(!buffer)return;
+  const lvl=Math.max(0,Math.min(1,(p.level/100)*(accent?1.15:1)*0.85));
+  const rate=Math.pow(2,(p.tune-50)/25);
+  const duration=Math.max(0.025,buffer.duration/Math.max(0.125,rate)*(0.12+0.88*p.decay/100));
+  const src=audio.createBufferSource(),gain=audio.createGain(),pan=audio.createStereoPanner();
+  src.buffer=buffer;src.playbackRate.setValueAtTime(rate,t);pan.pan.value=p.pan||0;
+  gain.gain.setValueAtTime(Math.max(0.0001,lvl),t);
+  const fadeStart=Math.max(t+0.005,t+duration*0.88);
+  gain.gain.setValueAtTime(Math.max(0.0001,lvl),fadeStart);
+  gain.gain.linearRampToValueAtTime(0.0001,t+duration);
+  src.connect(gain);gain.connect(pan);pan.connect(drumDry[dev]);pan.connect(drumDrive[dev]);
+  src.start(t);src.stop(t+duration+0.005);
 }
 
 /* ============ CONTROLS ============ */
@@ -1273,7 +1482,7 @@ $("#reset").onclick = () => {
   paintTransport(); $("#bar").textContent = "001"; renderStepStates();
 };
 $("#save").onclick = () => {
-  const data = {version:8, bpm:state.bpm, length:state.length, bank:state.bank, pattern:state.pattern, patterns:state.patterns, knobs:state.knobs, voiceParams:state.voiceParams, variants:state.variants, muted:state.muted, selectedVoice:state.selectedVoice, shuffle:state.shuffle, seqEnabled:state.seqEnabled, sidechain:state.sidechain, pitchBend:state.pitchBend, automation:state.automation};
+  const data = {version:8, bpm:state.bpm, length:state.length, bank:state.bank, pattern:state.pattern, patterns:state.patterns, knobs:state.knobs, voiceParams:state.voiceParams, variants:state.variants, muted:state.muted, soloed:state.soloed, selectedVoice:state.selectedVoice, shuffle:state.shuffle, seqEnabled:state.seqEnabled, sidechain:state.sidechain, pitchBend:state.pitchBend, automation:state.automation};
   const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "rebirth-rb338-song.json"; a.click(); URL.revokeObjectURL(a.href);
 };
@@ -1292,6 +1501,7 @@ $("#fileInput").onchange = async e => {
       if (data.voiceParams) Object.assign(state.voiceParams, data.voiceParams);
       if (data.variants) Object.assign(state.variants, data.variants);
       if (data.muted) Object.assign(state.muted, data.muted);
+      if (data.soloed) Object.assign(state.soloed, data.soloed);
       if (data.selectedVoice) Object.assign(state.selectedVoice, data.selectedVoice);
       if (data.seqEnabled) Object.assign(state.seqEnabled, data.seqEnabled);
       if (data.sidechain) Object.assign(state.sidechain, data.sidechain);
@@ -1328,6 +1538,19 @@ $("#syncToggle").onclick = () => { const on = $("#syncToggle").classList.toggle(
 $("#compressorToggle").onclick = () => { const on = $("#compressorToggle").classList.toggle("active"); comp.ratio.setTargetAtTime(on ? (state.knobs.ratio || 4) : 1, audio.currentTime, 0.02); };
 $("#sidechainCompToggle").onclick = () => { state.sidechain.comp = !state.sidechain.comp; $("#sidechainCompToggle").classList.toggle("active", state.sidechain.comp); };
 
+/* ============ INTERFACE ZOOM ============ */
+let appZoom = 1;
+function setAppZoom(value) {
+  appZoom = Math.max(0.8, Math.min(1.3, Math.round(value * 100) / 100));
+  const app = $("#app");
+  app.style.zoom = String(appZoom);
+  $("#zoomLabel").textContent = Math.round(appZoom * 100) + "%";
+}
+$("#zoomOut").onclick = () => setAppZoom(appZoom - 0.1);
+$("#zoomIn").onclick = () => setAppZoom(appZoom + 0.1);
+$("#zoomReset").onclick = () => setAppZoom(1);
+// Zoom is controlled only by the toolbar buttons; touch gestures do not resize the interface.
+
 /* ============ INIT ============ */
 makeRail();
 makeSynths();
@@ -1338,37 +1561,39 @@ updatePatternNumberDisplay();
 paintTransport();
 setShuffle(0);
 
-/* ============ PRESET HOUSE ACID 120 BPM ============ */
+/* ============ PRESET ============ */
 (function seedPreset() {
-  state.bpm = 120; $("#bpm").textContent = "120";
+  state.bpm = 138; $("#bpm").textContent = "138";
   const p808 = state.patterns["808"][0][0];
   p808.forEach(st => { st.hits = []; st.accent = false; });
   [0,4,8,12].forEach(i => p808[i].hits.push("BD"));
-  [4,12].forEach(i => p808[i].hits.push("SD"));
-  [2,6,10,14].forEach(i => p808[i].hits.push("CH"));
+  [4,12].forEach(i => p808[i].hits.push("CP"));
+  [2,6,10,14].forEach(i => p808[i].hits.push("OH"));
+  [1,3,5,7,9,11,13,15].forEach(i => p808[i].hits.push("CH"));
   [0,4,8,12].forEach(i => p808[i].accent = true);
   const p909 = state.patterns["909"][0][0];
   p909.forEach(st => { st.hits = []; st.accent = false; });
   [0,4,8,12].forEach(i => p909[i].hits.push("BD"));
-  [4,12].forEach(i => p909[i].hits.push("SD"));
+  [4,12].forEach(i => p909[i].hits.push("CP"));
   [2,6,10,14].forEach(i => p909[i].hits.push("OH"));
-  [1,3,5,7,9,11,13,15].forEach(i => p909[i].hits.push("CC"));
+  [1,3,5,7,9,11,13,15].forEach(i => p909[i].hits.push("CH"));
   const p303a = state.patterns["303a"][0][0];
   p303a.forEach(st => Object.assign(st, {on:false, note:0, accent:false, slide:false}));
   const acidA = [
-    {s:0,n:0,a:true,sl:false},{s:2,n:0,a:false,sl:true},{s:3,n:12,a:false,sl:false},
-    {s:4,n:0,a:true,sl:false},{s:6,n:3,a:false,sl:true},{s:7,n:12,a:false,sl:false},
-    {s:8,n:0,a:true,sl:false},{s:10,n:7,a:false,sl:true},{s:11,n:12,a:false,sl:false},
-    {s:12,n:0,a:true,sl:false},{s:14,n:3,a:false,sl:true},{s:15,n:10,a:false,sl:false}
+    {s:0,n:0,a:true,sl:true},{s:1,n:7,a:false,sl:false},{s:2,n:12,a:false,sl:true},{s:3,n:7,a:false,sl:false},
+    {s:4,n:3,a:true,sl:false},{s:5,n:7,a:false,sl:true},{s:6,n:10,a:false,sl:false},{s:7,n:15,a:false,sl:true},
+    {s:8,n:0,a:true,sl:false},{s:9,n:7,a:false,sl:true},{s:10,n:12,a:false,sl:false},{s:11,n:10,a:false,sl:true},
+    {s:12,n:3,a:true,sl:false},{s:13,n:7,a:false,sl:true},{s:14,n:15,a:false,sl:false},{s:15,n:12,a:false,sl:true}
   ];
   acidA.forEach(n => { p303a[n.s] = {on:true, note:n.n, accent:n.a, slide:n.sl}; });
   const p303b = state.patterns["303b"][0][0];
   p303b.forEach(st => Object.assign(st, {on:false, note:0, accent:false, slide:false}));
-  [{s:0,n:0},{s:6,n:5},{s:8,n:3},{s:14,n:7}].forEach(n => { p303b[n.s] = {on:true, note:n.n, accent:false, slide:false}; });
-  state.synthParams["303a"] = {cutoff:70, reson:60, envmod:60, decay:30, accent:60};
-  state.synthParams["303b"] = {cutoff:55, reson:50, envmod:40, decay:40, accent:40};
-  filter303["303a"].frequency.value = 120 + 70*100; filter303["303a"].Q.value = 0.1 + 60/7;
-  filter303["303b"].frequency.value = 120 + 55*100; filter303["303b"].Q.value = 0.1 + 50/7;
+  const bassNotes = [0,3,0,7, 0,3,7,10, 0,3,0,7, 0,3,10,7];
+  [1,2,3,5,6,7,9,10,11,13,14,15].forEach(i => { p303b[i] = {on:true, note:bassNotes[i], accent:[3,7,11,15].includes(i), slide:[2,6,10,14].includes(i)}; });
+  state.synthParams["303a"] = {cutoff:78, reson:68, envmod:72, decay:38, accent:72};
+  state.synthParams["303b"] = {cutoff:48, reson:38, envmod:35, decay:22, accent:48};
+  filter303["303a"].frequency.value = 120 + 78*100; filter303["303a"].Q.value = 0.1 + 68/7;
+  filter303["303b"].frequency.value = 120 + 48*100; filter303["303b"].Q.value = 0.1 + 38/7;
   renderStepStates();
 })();
 
